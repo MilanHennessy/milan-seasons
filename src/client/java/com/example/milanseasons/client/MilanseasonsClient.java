@@ -1,10 +1,14 @@
+
 package com.example.milanseasons.client;
+
+import com.example.milanseasons.Milanseasons;
+import com.example.milanseasons.Season;
+import com.example.milanseasons.SeasonManager;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
 
 public class MilanseasonsClient implements ClientModInitializer {
 
@@ -13,7 +17,7 @@ public class MilanseasonsClient implements ClientModInitializer {
 
         HudElementRegistry.attachElementBefore(
                 VanillaHudElements.CHAT,
-                Identifier.fromNamespaceAndPath("seasons", "season_hud"),
+                Milanseasons.id("season_hud"),
                 MilanseasonsClient::render
         );
     }
@@ -24,35 +28,39 @@ public class MilanseasonsClient implements ClientModInitializer {
 
         Minecraft mc = Minecraft.getInstance();
 
-        // Don't render if we're not in a world
-        if (mc.player == null) {
+        if (mc.player == null || mc.level == null) {
             return;
         }
 
-        // Draw our season text
+        // Get the current Minecraft world day (zero-based)
+		long worldDay = mc.level.getOverworldClockTime() / 24000L;
+
+        // Calculate season information
+        Season season = SeasonManager.getSeason(worldDay);
+        int day = SeasonManager.getDayOfSeason(worldDay);
+        int year = SeasonManager.getYear(worldDay);
+
+        // Display season information
         graphics.text(
                 mc.font,
-                "Spring",
-                8,
-                8,
+                season.getDisplayName(),
+                8, 8,
                 0xFFFFFFFF,
                 true
         );
 
         graphics.text(
                 mc.font,
-                "Day 12",
-                8,
-                20,
+                "Day " + day,
+                8, 20,
                 0xFFFFFFFF,
                 true
         );
 
         graphics.text(
                 mc.font,
-                "Year 1",
-                8,
-                32,
+                "Year " + year,
+                8, 32,
                 0xFFFFFFFF,
                 true
         );
